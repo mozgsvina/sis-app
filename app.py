@@ -4,6 +4,16 @@ import pandas as pd
 from io import BytesIO
 import matplotlib.pyplot as plt
 
+from streamlit_extras.let_it_rain import rain
+
+# Add some fun with emoji rain
+rain(
+    emoji="💀",  # Choose any emoji, like 🎉, 💖, 🍀, etc.
+    font_size=54,
+    falling_speed=5,
+    animation_length="infinite",
+)
+
 # AWS S3 Configuration
 bucket_name = "sis-annotation"
 file_key = "tumanova_2.xlsx"
