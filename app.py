@@ -8,8 +8,18 @@ import matplotlib.pyplot as plt
 bucket_name = "sis-annotation"
 file_key = "tumanova_2.xlsx"
 
-# Initialize S3 Client
-s3 = boto3.client("s3")
+# Load AWS credentials from Streamlit secrets
+aws_access_key = st.secrets["aws"]["aws_access_key_id"]
+aws_secret_key = st.secrets["aws"]["aws_secret_access_key"]
+aws_region = st.secrets["aws"]["aws_region"]
+
+# Initialize S3 client using the secrets
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=aws_access_key,
+    aws_secret_access_key=aws_secret_key,
+    region_name=aws_region
+)
 
 @st.cache_data  # Cache the result to optimize performance
 def load_data():
