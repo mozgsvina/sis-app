@@ -59,8 +59,19 @@ else:
     ).generate_from_frequencies(word_freq)
 
 
-    st.subheader(f"Wordclouf for category: {selected_category}")
+    st.subheader(f"Wordcloud for category: {selected_category}")
     fig, ax = plt.subplots()
     ax.imshow(wordcloud, interpolation='bilinear')
     ax.axis("off")
     st.pyplot(fig)
+
+
+    # Show DataFrame slice for selected category
+st.subheader("🔍 Words in Selected Category")
+st.dataframe(df[df["category"] == selected_category])
+
+st.markdown("---")
+st.markdown(
+    "<p style='text-align: center; color: gray;'>🚧 This project is a work in progress – part of the SiS:TER corpus exploration.</p>",
+    unsafe_allow_html=True
+)
