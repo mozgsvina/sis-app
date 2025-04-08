@@ -17,6 +17,7 @@ aws_region = st.secrets["aws"]["aws_region"]
 # --- Load JSONL Annotation File ---
 jsonl_key = "unified_annotations_clean.jsonl"  # Update with new file name if needed
 
+@st.cache_data
 def load_annotations():
     s3 = boto3.client(
         "s3",
