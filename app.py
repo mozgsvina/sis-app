@@ -98,11 +98,11 @@ if selected_entry:
         st.info("No tags in this part.")
 
     # Paragraph-level volume
-    st.markdown("### 📊 Sound Volume per Paragraph")
+    st.markdown("### 📊 Annotation per Paragraph")
     para_annot = selected_entry["annotations"]["paragraph_level"]
     st.markdown(f"""
     - **Sound Type:** {para_annot["sound_type"]}
-    - **Human:** {para_annot["volume"]["human"]}/4, **Nature:** {para_annot["volume"]["nature"]}/4, **Artificial:** {para_annot["volume"]["artificial"]}/4
+    - **Sound Volume:** :blue-background[Human]: {para_annot["volume"]["human"]}/4, :green-background[Nature]: {para_annot["volume"]["nature"]}/4, :red-background[Artificial]: {para_annot["volume"]["artificial"]}/4
     """)
 
     st.markdown("""
@@ -111,6 +111,9 @@ if selected_entry:
     - **nd (Non-diegetic)**: Sound that is external to the story world (e.g., description of regular actions, memories, etc.).
     - **dnd (Both types)**: A mix of diegetic and non-diegetic sounds.
     """)
+
+    if st.button("Show Raw JSON"):
+        st.write(selected_entry)
 else:
     st.warning("No annotation found for this selection.")
 
