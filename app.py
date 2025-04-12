@@ -15,7 +15,7 @@ aws_secret_key = st.secrets["aws"]["aws_secret_access_key"]
 aws_region = st.secrets["aws"]["aws_region"]
 
 # --- Load JSONL Annotation File ---
-jsonl_key = "unified_annotations_clean.jsonl"  # Update with new file name if needed
+jsonl_key = "updated_annotations_with_metadata.jsonl"  # Update with new file name if needed
 
 @st.cache_data
 def load_annotations():
