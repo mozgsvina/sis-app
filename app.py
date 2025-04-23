@@ -168,7 +168,6 @@ st.markdown("---")
 st.markdown("""
 ### 🧑‍💻 Project Team
 
-**Contacts:**
 - 📧 Margarita Kirina: [mkirina2412@gmail.com](mailto:mkirina2412@gmail.com)
 - 🛠 Anna Moskvina: [moskvina.anya@gmail.com](mailto:moskvina.anya@gmail.com)
 - 🔍 Ruslan Rodionov: [rrodionov447@gmail.com](mailto:rrodionov447@gmail.com)
