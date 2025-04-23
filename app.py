@@ -42,7 +42,7 @@ st.markdown(
     - **Lexical annotation** (focused on identifying and categorizing words in the text, e.g., human, nature, mechanic sounds)
     - **Sound volume annotation** (the loudness of the paragraph by three dimensions).
 
-    The corpus comprises *220 short stories* covering the *XX century*. 
+    The corpus comprises *240 short stories* covering the *XX century*. 
     Below, you can explore the **annotation per paragraph**.
     """
 )
@@ -134,7 +134,7 @@ def load_data():
     return df
 
 st.markdown("---")
-st.markdown("## 🧠 Wordcloud Generation")
+st.markdown("## 🧠 Sound Wordclouds")
 
 st.markdown("""
 These word clouds are generated from frequency dictionaries derived from the whole dataset. The word frequencies exclude multiple word expressions.
@@ -163,9 +163,22 @@ else:
 st.subheader("🔍 Words in Selected Category")
 st.dataframe(filtered_df)
 
+st.markdown("---")
+
+st.markdown("""
+### 🧑‍💻 Project Team
+
+**Contacts:**
+- 📧 Margarita Kirina: [mkirina2412@gmail.com](mailto:mkirina2412@gmail.com)
+- 🛠 Anna Moskvina: [moskvina.anya@gmail.com](mailto:moskvina.anya@gmail.com)
+- 🔍 Ruslan Rodionov: [rrodionov447@gmail.com](mailto:rrodionov447@gmail.com)
+            
+For questions and feedback feel free to reach out!
+""")
+
 # Footer
 st.markdown("---")
 st.markdown(
-    "<p style='text-align: center; color: gray;'>🚧 This project is a work in progress – part of the SiS:TER corpus exploration.</p>",
+    "<p style='text-align: center; color: gray;'>🚧 This project is a work in progress – part of the SiS:TER corpus exploration. The research is conducted within the framework of the project “Text as Big Data: Methods and Models for Working with Large Textual Data”, carried out at the Linguistic Convergence Laboratory, HSE University.</p>",
     unsafe_allow_html=True
 )
