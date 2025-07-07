@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import json
 
 # AWS S3 Configuration
-bucket_name = "sis-annotation"
+bucket_name = st.secrets["aws"]["aws_bucket_name"]
 
 # Load AWS credentials from Streamlit secrets
 aws_access_key = st.secrets["aws"]["aws_access_key_id"]
@@ -15,7 +15,7 @@ aws_secret_key = st.secrets["aws"]["aws_secret_access_key"]
 aws_region = st.secrets["aws"]["aws_region"]
 
 # --- Load JSONL Annotation File ---
-jsonl_key = "updated_annotations_with_metadata.jsonl"  # Update with new file name if needed
+jsonl_key = st.secrets["aws"]["aws_jsonl_key"]
 
 @st.cache_data
 def load_annotations():
