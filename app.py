@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import json
 import io
 
+
 # AWS S3 Configuration
 bucket_name = st.secrets["aws"]["aws_bucket_name"]
 aws_access_key = st.secrets["aws"]["aws_access_key_id"]
@@ -38,12 +39,13 @@ This corpus is a collection of short stories, each annotated on two levels:
 - **Lexical annotation** (focused on identifying and categorizing words in the text, e.g., human, nature, mechanic sounds)
 - **Sound volume annotation** (the loudness of the paragraph by three dimensions).
 
-The corpus comprises *240 short stories* covering the *XX century*. Below, you can explore the **annotation per paragraph**.
+The corpus comprises *240 short stories* covering the *XX century*. Use the filters on the left bar to explore the **annotation per paragraph**.
 """)
 
 st.markdown("---")
 
 # --- Filters Sidebar ---
+st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
 st.sidebar.header("🔎 Filters")
 
 sound_types = ["d", "nd", "dnd"]
@@ -84,20 +86,24 @@ def paragraph_matches_filters(entry):
 filtered_annotations = [a for a in annotations if paragraph_matches_filters(a)]
 
 st.markdown("## 🔍 Filtered Paragraphs")
-st.markdown(f"**{len(filtered_annotations)} paragraphs found**")
+st.markdown(f"***{len(filtered_annotations)}*** paragraphs found, first ***20*** shown.")
 
 N_DISPLAY = 20
 
 PAGE_SIZE = 1  # show 1 paragraph per page
 total_pages = len(filtered_annotations) // PAGE_SIZE + (len(filtered_annotations) % PAGE_SIZE > 0)
 
-page_number = st.number_input(
-    label="Go to page:",
-    min_value=1,
-    max_value=total_pages,
-    value=1,
-    step=1
-)
+col1, col2, col3 = st.columns([1, 2, 2]) 
+with col1:
+    page_number = st.number_input(
+        label="**Go to page:**",
+        min_value=1,
+        max_value=total_pages,
+        value=1,
+        step=1,
+    )
+
+
 
 start_idx = (page_number - 1) * PAGE_SIZE
 end_idx = start_idx + PAGE_SIZE
@@ -105,7 +111,7 @@ end_idx = start_idx + PAGE_SIZE
 
 for entry in filtered_annotations[start_idx:end_idx]:
     meta = entry.get("metadata", {})
-    st.markdown(f"**{meta.get('title', 'Unknown Title')}** by {meta.get('author', 'Unknown Author')} ({meta.get('year', 'Unknown Year')})")
+    st.markdown(f"**Title, Author, Year:** «{meta.get('title', 'Unknown Title')}» by {meta.get('author', 'Unknown Author')} ({meta.get('year', 'Unknown Year')})")
 
     text = entry["text"]
     token_labels = entry.get("annotations", {}).get("token_level", {}).get("labels", [])
@@ -113,14 +119,16 @@ for entry in filtered_annotations[start_idx:end_idx]:
     if selected_labels:
         for token in token_labels:
             if any(lbl in selected_labels for lbl in token['labels']):
-                text = text.replace(token['text'], f"**{token['text']}**")
+                text = text.replace(token['text'], f":violet-background[{token['text']}]")
 
-    st.write(text)
-
-    st.markdown("**Sound Type:** " + entry["annotations"]["paragraph_level"]["sound_type"])
     volume = entry["annotations"]["paragraph_level"]["volume"]
-    st.markdown(f"**Volume:** Human: {volume['human']}/4, Nature: {volume['nature']}/4, Artificial: {volume['artificial']}/4")
+    st.markdown(f"**Sound Type & Volume: :orange-badge[{entry['annotations']['paragraph_level']['sound_type']} *] :blue-badge[🗣️ Human: {volume['human']}/4]   :green-badge[🍃 Nature: {volume['nature']}/4]   :red-badge[🖨️ Artificial: {volume['artificial']}/4]**")
 
+    # st.write(text)
+    container = st.container(border=True)
+    container.write(text)
+
+    st.write("**All Annotations in Paragraph:**")
     if token_labels:
         df_tokens = pd.DataFrame([{
             "Text": t["text"],
@@ -132,6 +140,11 @@ for entry in filtered_annotations[start_idx:end_idx]:
     else:
         st.info("No token-level annotations.")
 
+    st.caption(""" \*
+    - **d (Diegetic)**: Sound that originates within the story world (e.g., footsteps, dialogue).
+    - **nd (Non-diegetic)**: Sound that is external to the story world (e.g., description of regular actions, memories, etc.).
+    - **dnd (Both types)**: A mix of diegetic and non-diegetic sounds.
+    """)
 
 st.markdown("---")
 
@@ -169,6 +182,7 @@ if st.button("Download First 20 Results"):
 st.markdown("---")
 
 # --- Wordcloud Section ---
+st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
 st.sidebar.header("🧠 Wordcloud Generator")
 file_key = "sound_cats_lemmas_w_freqs.csv"
 
