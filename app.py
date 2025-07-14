@@ -58,9 +58,11 @@ with tab1:
     """)
 with tab2:
     # --- Filters Sidebar ---
-    st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
+    st.sidebar.markdown("<br>", unsafe_allow_html=True)
     st.sidebar.header("🔎 Filters")
-
+    st.sidebar.markdown("Use the filters below to search the annotations. The results are shown on the :blue-background[Search] tab.")
+    
+    st.sidebar.markdown("### Filter by Sound Type")
     sound_types = ["d", "nd", "dnd"]
     selected_sound_types = st.sidebar.multiselect("Select Sound Type:", sound_types, default=sound_types)
 
@@ -69,24 +71,52 @@ with tab2:
         for l in a.get("annotations", {}).get("token_level", {}).get("labels", [])
         for label in l.get("labels", [])
     )
+    st.sidebar.markdown("### Filter by Sound Categories")
     selected_labels = st.sidebar.multiselect("Select Token-Level Labels:", sorted(all_labels))
 
     years = [a['metadata']['year'] for a in annotations if 'metadata' in a and isinstance(a['metadata'].get('year'), int)]
     min_year, max_year = min(years), max(years)
-    selected_year_range = st.sidebar.slider("Select Year Range:", min_year, max_year, (min_year, max_year))
+    st.sidebar.markdown("### Filter by Year Range")
+
+    year_start = st.sidebar.number_input("Start Year", min_value=min_year, max_value=max_year, value=min_year)
+    year_end = st.sidebar.number_input("End Year", min_value=min_year, max_value=max_year, value=max_year)
+    st.sidebar.markdown("### Filter by Volume Levels (0 to 4)")
+
+    volume_human = st.sidebar.slider("Human Volume", 0, 4, (0, 4))
+    volume_nature = st.sidebar.slider("Nature Volume", 0, 4, (0, 4))
+    volume_artificial = st.sidebar.slider("Artificial Volume", 0, 4, (0, 4))
+
+    def safe_int(value):
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            return 0
+
 
     # --- Filter Logic ---
     def paragraph_matches_filters(entry):
         meta = entry.get("metadata", {})
-
         year = meta.get("year")
-        if year is None or not (selected_year_range[0] <= year <= selected_year_range[1]):
-            return False
 
+        if year is None or not (year_start <= year <= year_end):
+            return False
 
         para_sound_type = entry.get("annotations", {}).get("paragraph_level", {}).get("sound_type")
         if selected_sound_types and para_sound_type not in selected_sound_types:
             return False
+
+        volume = entry.get("annotations", {}).get("paragraph_level", {}).get("volume", {})
+        vol_human = safe_int(volume.get("human", 0))
+        vol_nature = safe_int(volume.get("nature", 0))
+        vol_artificial = safe_int(volume.get("artificial", 0))
+
+        if not (volume_human[0] <= vol_human <= volume_human[1]):
+            return False
+        if not (volume_nature[0] <= vol_nature <= volume_nature[1]):
+            return False
+        if not (volume_artificial[0] <= vol_artificial <= volume_artificial[1]):
+            return False
+
 
         if selected_labels:
             token_labels = entry.get("annotations", {}).get("token_level", {}).get("labels", [])
@@ -96,31 +126,50 @@ with tab2:
 
         return True
 
+
     filtered_annotations = [a for a in annotations if paragraph_matches_filters(a)]
+    N_DISPLAY = 20
+    filtered_annotations = filtered_annotations[:N_DISPLAY]
+
 
     st.markdown("## 🔍 Filtered Paragraphs")
-    st.markdown(f"***{len(filtered_annotations)}*** paragraphs found, first ***20*** shown.")
+    st.markdown(f"***{len(filtered_annotations)}*** paragraphs found, first ***{N_DISPLAY}*** shown.")
 
-    N_DISPLAY = 20
 
     PAGE_SIZE = 1  # show 1 paragraph per page
     total_pages = len(filtered_annotations) // PAGE_SIZE + (len(filtered_annotations) % PAGE_SIZE > 0)
 
-    col1, col2, col3 = st.columns([1, 2, 2]) 
+    # col1, col2, col3 = st.columns([1, 2, 2]) 
+    # with col1:
+    #     page_number = st.number_input(
+    #         label="**Go to page:**",
+    #         min_value=1,
+    #         max_value=total_pages,
+    #         value=1,
+    #         step=1,
+    #     )
+
+
+
+    # start_idx = (page_number - 1) * PAGE_SIZE
+    # end_idx = start_idx + PAGE_SIZE
+    if 'page_number' not in st.session_state:
+        st.session_state.page_number = 1
+
+    col1, col2, col3 = st.columns([1, 1, 1])
+
     with col1:
-        page_number = st.number_input(
-            label="**Go to page:**",
-            min_value=1,
-            max_value=total_pages,
-            value=1,
-            step=1,
-        )
+        if st.button("⬅️ Previous") and st.session_state.page_number > 1:
+            st.session_state.page_number -= 1
 
+    with col3:
+        if st.button("Next ➡️") and st.session_state.page_number < total_pages:
+            st.session_state.page_number += 1
 
+    st.markdown(f"**Page {st.session_state.page_number} of {total_pages}**")
 
-    start_idx = (page_number - 1) * PAGE_SIZE
+    start_idx = (st.session_state.page_number - 1) * PAGE_SIZE
     end_idx = start_idx + PAGE_SIZE
-
 
     for entry in filtered_annotations[start_idx:end_idx]:
         meta = entry.get("metadata", {})
@@ -195,6 +244,7 @@ with tab2:
 
 with tab3:
 # --- Wordcloud Section ---
+    st.markdown("## 🧠 Sound Wordclouds")
     file_key = "sound_cats_lemmas_w_freqs.csv"
 
     @st.cache_data
@@ -220,7 +270,6 @@ with tab3:
         word_freq = dict(zip(filtered_df['lemma'], filtered_df['freq']))
         wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(word_freq)
 
-        st.markdown("## 🧠 Sound Wordclouds")
         st.subheader(f"Wordcloud for category: {selected_category}")
 
         fig, ax = plt.subplots()
